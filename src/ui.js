@@ -460,7 +460,9 @@ export function renderStep5(state, callbacks) {
   return el('div', { id: 'sb-step5', class: 'sb-confirmation' }, [
     el('div', { id: 'sb-step5-check', class: 'sb-check-icon' }, [svgCheck()]),
     el('div', { id: 'sb-step5-title', class: 'sb-confirmation-title' }, [t(lang, 'step5.title')]),
-    el('div', { id: 'sb-step5-text', class: 'sb-confirmation-text' }, [t(lang, 'step5.confirmed')]),
+    el('div', { id: 'sb-step5-text', class: 'sb-confirmation-text' }, [
+      booking.fallback ? t(lang, 'step5.confirmedFallback') : t(lang, 'step5.confirmed')
+    ]),
     el('div', { id: 'sb-step5-summary', class: 'sb-summary' }, summaryEls),
     el('div', { id: 'sb-step5-actions', class: 'sb-confirmation-actions' }, actions),
   ])

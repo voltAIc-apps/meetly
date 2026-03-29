@@ -38,6 +38,7 @@ export const strings = {
     step5: {
       title: 'Termin bestaetigt',
       confirmed: 'Ihr Termin wurde erfolgreich gebucht.',
+      confirmedFallback: 'Ihre Terminanfrage wurde per E-Mail gesendet. Wir melden uns in Kuerze mit einer Bestaetigung.',
       meetLink: 'Google Meet beitreten',
       downloadIcs: 'Kalender-Datei herunterladen (.ics)',
       summary: 'Zusammenfassung',
@@ -111,6 +112,7 @@ export const strings = {
     step5: {
       title: 'Appointment confirmed',
       confirmed: 'Your appointment has been booked successfully.',
+      confirmedFallback: 'Your appointment request has been sent by email. We will get back to you shortly with a confirmation.',
       meetLink: 'Join Google Meet',
       downloadIcs: 'Download calendar file (.ics)',
       summary: 'Summary',

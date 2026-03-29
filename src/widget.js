@@ -404,7 +404,13 @@ async function submitBooking() {
     context: finalContext,
   }
 
-  const result = await postBooking(state.apiUrl, payload, config.apiKey)
+  const consultant = state.consultants.find(c => c.id === state.selectedConsultant)
+  const icsContent = generateIcs(state)
+
+  let result = { ok: false }
+  if (state.apiUrl) {
+    result = await postBooking(state.apiUrl, payload, config.apiKey)
+  }
   state.submitting = false
 
   if (result.ok) {
@@ -422,11 +428,29 @@ async function submitBooking() {
     })
 
     // Send confirmation emails via EmailJS (non-blocking)
-    const consultant = state.consultants.find(c => c.id === state.selectedConsultant)
-    const icsContent = generateIcs(state)
     sendBookingEmails(state, consultant, icsContent, config.emailjs)
   } else {
-    state.error = t(state.lang, 'errors.bookingFailed')
+    // Fallback: API unavailable — send booking emails directly via EmailJS
+    state.booking = { meet_link: '', booking_id: '', fallback: true }
+    const emailResult = await sendBookingEmails(state, consultant, icsContent, config.emailjs)
+
+    if (emailResult.visitorOk || emailResult.consultantOk) {
+      // At least one email sent — treat as success
+      state.step = 5
+      state.error = null
+      _emit('booking:confirmed', {
+        bookingId: '',
+        consultant: state.selectedConsultant,
+        date: state.selectedDate,
+        time: state.selectedTime,
+        meetLink: '',
+        visitor: { ...state.visitor },
+        context: finalContext,
+        fallback: true,
+      })
+    } else {
+      state.error = t(state.lang, 'errors.bookingFailed')
+    }
   }
   render()
 }
