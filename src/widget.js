@@ -515,6 +515,9 @@ function open(options) {
   if (options.consultantsUrl) {
     state.consultantsUrl = options.consultantsUrl
   }
+  if (options.lang && (options.lang === 'en' || options.lang === 'de')) {
+    state.lang = options.lang
+  }
 
   // Show modal
   backdrop.classList.add('sb-visible')
