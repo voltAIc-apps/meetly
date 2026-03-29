@@ -177,6 +177,7 @@ function render() {
       state.selectedTime = null
       goToStep(3)
     },
+    onRenderStep2: () => render(),
     onSelectTime: (time) => {
       state.selectedTime = time
       render() // re-render to show selection, then user clicks next

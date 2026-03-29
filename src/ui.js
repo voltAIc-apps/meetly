@@ -231,31 +231,102 @@ export function renderStep1(state, callbacks) {
   return container
 }
 
-// --- Step 2: Choose date ---
+// --- Step 2: Choose date (month grid with prev/next navigation) ---
 export function renderStep2(state, callbacks) {
   const lang = state.lang
   const weekdays = t(lang, 'step2.weekdays')
   const months = t(lang, 'step2.months')
-  const dates = getWorkingDays(30)
 
-  const strip = el('div', { id: 'sb-step2-strip', class: 'sb-date-strip' })
+  // Determine displayed month from state (default: current month)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
 
-  dates.forEach((d, i) => {
-    const dateStr = formatDateISO(d)
-    const isSelected = state.selectedDate === dateStr
-    const card = el('div', {
-      id: `sb-step2-date-${i}`,
-      class: `sb-date-card${isSelected ? ' sb-selected' : ''}`,
-      onclick: () => callbacks.onSelectDate(dateStr),
-    }, [
-      el('div', { id: `sb-step2-weekday-${i}`, class: 'sb-date-weekday' }, [weekdays[d.getDay() === 0 ? 6 : d.getDay() - 1]]),
-      el('div', { id: `sb-step2-day-${i}`, class: 'sb-date-day' }, [String(d.getDate())]),
-      el('div', { id: `sb-step2-month-${i}`, class: 'sb-date-month' }, [months[d.getMonth()]]),
-    ])
-    strip.appendChild(card)
+  // Calendar month offset stored in state (0 = current month)
+  if (state._calendarMonth === undefined) state._calendarMonth = 0
+
+  const viewDate = new Date(today.getFullYear(), today.getMonth() + state._calendarMonth, 1)
+  const viewYear = viewDate.getFullYear()
+  const viewMonth = viewDate.getMonth()
+
+  // Boundaries: current month to +3 months
+  const minMonth = today.getFullYear() * 12 + today.getMonth()
+  const maxMonth = minMonth + 3
+  const curMonth = viewYear * 12 + viewMonth
+  const canPrev = curMonth > minMonth
+  const canNext = curMonth < maxMonth
+
+  // Build working days set for this month (Mon-Fri, from tomorrow onward, within 3 months)
+  const maxDate = new Date(today.getFullYear(), today.getMonth() + 4, 0) // last day of +3 month
+  const workingDaysSet = new Set()
+  const d = new Date(tomorrow)
+  while (d <= maxDate) {
+    const dow = d.getDay()
+    if (dow >= 1 && dow <= 5) {
+      workingDaysSet.add(formatDateISO(d))
+    }
+    d.setDate(d.getDate() + 1)
+  }
+
+  // Month header with navigation arrows
+  const monthLabel = months[viewMonth] + ' ' + viewYear
+  const header = el('div', { id: 'sb-step2-header', class: 'sb-cal-header' }, [
+    el('button', {
+      id: 'sb-step2-prev',
+      class: 'sb-cal-nav' + (canPrev ? '' : ' sb-disabled'),
+      type: 'button',
+      onclick: canPrev ? () => { state._calendarMonth--; callbacks.onRenderStep2() } : null,
+    }, ['\u2039']),
+    el('div', { id: 'sb-step2-month-label', class: 'sb-cal-month-label' }, [monthLabel]),
+    el('button', {
+      id: 'sb-step2-next',
+      class: 'sb-cal-nav' + (canNext ? '' : ' sb-disabled'),
+      type: 'button',
+      onclick: canNext ? () => { state._calendarMonth++; callbacks.onRenderStep2() } : null,
+    }, ['\u203A']),
+  ])
+
+  // Weekday row (Mon-Sun)
+  const weekdayRow = el('div', { id: 'sb-step2-weekday-row', class: 'sb-cal-grid sb-cal-weekdays' })
+  weekdays.forEach((wd, i) => {
+    weekdayRow.appendChild(el('div', { id: `sb-step2-wd-${i}`, class: 'sb-cal-wd' }, [wd]))
   })
 
-  return el('div', { id: 'sb-step2' }, [strip])
+  // Day grid
+  const grid = el('div', { id: 'sb-step2-grid', class: 'sb-cal-grid' })
+
+  // First day of month and offset (Mon=0)
+  const firstDay = new Date(viewYear, viewMonth, 1)
+  const startDow = (firstDay.getDay() + 6) % 7 // convert Sun=0 to Mon=0
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+
+  // Empty cells before first day
+  for (let i = 0; i < startDow; i++) {
+    grid.appendChild(el('div', { class: 'sb-cal-cell sb-cal-empty' }))
+  }
+
+  // Day cells
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cellDate = new Date(viewYear, viewMonth, day)
+    const dateStr = formatDateISO(cellDate)
+    const isWorkingDay = workingDaysSet.has(dateStr)
+    const isSelected = state.selectedDate === dateStr
+    const isToday = dateStr === formatDateISO(today)
+
+    let cls = 'sb-cal-cell'
+    if (!isWorkingDay) cls += ' sb-cal-disabled'
+    if (isSelected) cls += ' sb-selected'
+    if (isToday) cls += ' sb-cal-today'
+
+    grid.appendChild(el('div', {
+      id: `sb-step2-day-${day}`,
+      class: cls,
+      onclick: isWorkingDay ? () => callbacks.onSelectDate(dateStr) : null,
+    }, [String(day)]))
+  }
+
+  return el('div', { id: 'sb-step2', class: 'sb-calendar' }, [header, weekdayRow, grid])
 }
 
 // --- Step 3: Choose time ---
