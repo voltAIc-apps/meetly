@@ -295,9 +295,17 @@ async function loadConsultants() {
     const ids = config.consultantIds.split(',').map(s => s.trim()).filter(Boolean)
     const base = config.consultantsBase || scriptOrigin + '/consultants'
     result = await fetchConsultantsByIds(base, ids)
+  } else if (state.consultantsUrl) {
+    // Direct fetch from consultants JSON URL (preserves all fields like photo, linkedin)
+    try {
+      const res = await fetch(state.consultantsUrl, { signal: AbortSignal.timeout(10000) })
+      const data = await res.json()
+      result = { ok: true, data, error: null }
+    } catch (err) {
+      result = { ok: false, data: null, error: err.message }
+    }
   } else {
-    // Legacy: single consultants URL via app2gcal
-    result = await getConsultants(state.apiUrl, state.consultantsUrl)
+    result = { ok: false, data: null, error: 'No consultants source configured' }
   }
 
   state.loading = false
