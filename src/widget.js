@@ -191,8 +191,12 @@ function render() {
       } else {
         state.visitor[field] = value
       }
-      // Update footer button state
-      renderFooterContent()
+      // Re-render topic chips for multi-select; only update footer for text fields
+      if (field === 'topic') {
+        render()
+      } else {
+        renderFooterContent()
+      }
     },
     onDownloadIcs: () => downloadIcs(),
     onSubmit: () => submitBooking(),
