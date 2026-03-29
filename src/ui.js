@@ -236,7 +236,7 @@ export function renderStep2(state, callbacks) {
   const lang = state.lang
   const weekdays = t(lang, 'step2.weekdays')
   const months = t(lang, 'step2.months')
-  const dates = getWorkingDays(14)
+  const dates = getWorkingDays(30)
 
   const strip = el('div', { id: 'sb-step2-strip', class: 'sb-date-strip' })
 
