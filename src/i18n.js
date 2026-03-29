@@ -38,7 +38,7 @@ export const strings = {
     step5: {
       title: 'Termin bestaetigt',
       confirmed: 'Ihr Termin wurde erfolgreich gebucht.',
-      confirmedFallback: 'Ihre Terminanfrage wurde per E-Mail gesendet. Wir melden uns in Kuerze mit einer Bestaetigung.',
+      confirmedFallback: 'Ihre Terminanfrage wurde per E-Mail gesendet. Leider konnten wir keinen Live-Kalenderabgleich der Teilnehmer durchfuehren, sodass Terminueberschneidungen moeglich sind. Bitte warten Sie auf eine baldmoeglichste Bestaetigung.',
       meetLink: 'Google Meet beitreten',
       downloadIcs: 'Kalender-Datei herunterladen (.ics)',
       summary: 'Zusammenfassung',
@@ -112,7 +112,7 @@ export const strings = {
     step5: {
       title: 'Appointment confirmed',
       confirmed: 'Your appointment has been booked successfully.',
-      confirmedFallback: 'Your appointment request has been sent by email. We will get back to you shortly with a confirmation.',
+      confirmedFallback: 'Your appointment request has been sent by email. Unfortunately we could not perform a live calendar check of the participants, making scheduling conflicts possible. Please standby for an earliest possible confirmation.',
       meetLink: 'Join Google Meet',
       downloadIcs: 'Download calendar file (.ics)',
       summary: 'Summary',
