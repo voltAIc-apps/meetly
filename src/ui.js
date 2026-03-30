@@ -1,5 +1,6 @@
 // DOM construction for each of the 5 steps
 import { t, strings } from './i18n.js'
+import { computeScheduleSlots } from './availability.js'
 
 // --- DOM helper ---
 // el('div', { id: 'foo', class: 'bar', onclick: fn }, [child1, 'text', child2])
@@ -223,6 +224,7 @@ export function renderStep1(state, callbacks) {
       el('div', { id: `sb-step1-info-${i}`, class: 'sb-consultant-info' }, [
         el('div', { id: `sb-step1-name-${i}`, class: 'sb-consultant-name' }, [c.name]),
         el('div', { id: `sb-step1-role-${i}`, class: 'sb-consultant-role' }, [c.role || '']),
+        ...(c.bio ? [el('div', { id: `sb-step1-bio-${i}`, class: 'sb-consultant-bio' }, [c.bio])] : []),
       ]),
     ])
     container.appendChild(card)
@@ -306,6 +308,10 @@ export function renderStep2(state, callbacks) {
     grid.appendChild(el('div', { class: 'sb-cal-cell sb-cal-empty' }))
   }
 
+  // Find selected consultant for schedule-based availability check
+  const consultantId = state.selectedConsultant === '__best__' ? '' : state.selectedConsultant
+  const consultant = state.consultants.find(c => c.id === consultantId)
+
   // Day cells
   for (let day = 1; day <= daysInMonth; day++) {
     const cellDate = new Date(viewYear, viewMonth, day)
@@ -314,15 +320,24 @@ export function renderStep2(state, callbacks) {
     const isSelected = state.selectedDate === dateStr
     const isToday = dateStr === formatDateISO(today)
 
+    // Check if consultant has any available slots on this day
+    let isFull = false
+    if (isWorkingDay && consultant && consultant.schedule) {
+      const daySlots = computeScheduleSlots(consultant, dateStr)
+      const availableCount = daySlots.filter(s => s.available).length
+      if (availableCount === 0) isFull = true
+    }
+
     let cls = 'sb-cal-cell'
     if (!isWorkingDay) cls += ' sb-cal-disabled'
+    if (isFull) cls += ' sb-cal-full'
     if (isSelected) cls += ' sb-selected'
     if (isToday) cls += ' sb-cal-today'
 
     grid.appendChild(el('div', {
       id: `sb-step2-day-${day}`,
       class: cls,
-      onclick: isWorkingDay ? () => callbacks.onSelectDate(dateStr) : null,
+      onclick: (isWorkingDay && !isFull) ? () => callbacks.onSelectDate(dateStr) : null,
     }, [String(day)]))
   }
 

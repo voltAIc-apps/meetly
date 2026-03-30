@@ -304,6 +304,14 @@
   margin-top: 2px;
 }
 
+.sb-consultant-bio {
+  font-size: 12px;
+  color: var(--sb-text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
 /* Step 2: Date strip */
 /* --- Calendar month grid --- */
 .sb-calendar {
@@ -403,6 +411,14 @@
 .sb-cal-cell.sb-cal-disabled {
   color: var(--sb-border);
   cursor: default;
+  pointer-events: none;
+}
+
+.sb-cal-cell.sb-cal-full {
+  color: var(--sb-text-secondary);
+  text-decoration: line-through;
+  opacity: 0.5;
+  cursor: not-allowed;
   pointer-events: none;
 }
 
