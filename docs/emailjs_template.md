@@ -61,7 +61,7 @@ Copy everything below into the EmailJS template Content field:
 
     {{#meet_link}}
     <div style="margin: 24px 0; text-align: center;">
-      <a href="{{meet_link}}" style="display: inline-block; padding: 12px 28px; background: #0077b5; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">Join Google Meet</a>
+      <a href="{{meet_link}}" style="display: inline-block; padding: 12px 28px; background: #0077b5; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">Join Private Video Conf</a>
     </div>
     {{/meet_link}}
 

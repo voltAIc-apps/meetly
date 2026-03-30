@@ -406,7 +406,11 @@ async function submitBooking() {
   }
 
   const consultant = state.consultants.find(c => c.id === state.selectedConsultant)
-  const icsContent = generateIcs(state)
+
+  // Generate private video conference link from consultant name
+  const videoLink = consultant
+    ? 'https://vid.rocket.re-cloud.io/' + consultant.name.toLowerCase().replace(/\s+/g, '.').replace(/[^a-z.]/g, '')
+    : ''
 
   let result = { ok: false }
   if (state.apiUrl) {
@@ -416,6 +420,9 @@ async function submitBooking() {
 
   if (result.ok) {
     state.booking = result.data
+    // Use private video link if backend didn't provide one
+    if (!state.booking.meet_link) state.booking.meet_link = videoLink
+    const icsContent = generateIcs(state)
     state.step = 5
     state.error = null
     _emit('booking:confirmed', {
@@ -423,7 +430,7 @@ async function submitBooking() {
       consultant: state.selectedConsultant,
       date: state.selectedDate,
       time: state.selectedTime,
-      meetLink: result.data.meet_link,
+      meetLink: state.booking.meet_link,
       visitor: { ...state.visitor },
       context: finalContext,
     })
@@ -432,8 +439,9 @@ async function submitBooking() {
     sendBookingEmails(state, consultant, icsContent, config.emailjs)
   } else {
     // Fallback: API unavailable — send booking emails directly via EmailJS
-    state.booking = { meet_link: '', booking_id: '', fallback: true }
-    const emailResult = await sendBookingEmails(state, consultant, icsContent, config.emailjs)
+    state.booking = { meet_link: videoLink, booking_id: '', fallback: true }
+    const fallbackIcs = generateIcs(state)
+    const emailResult = await sendBookingEmails(state, consultant, fallbackIcs, config.emailjs)
 
     if (emailResult.visitorOk || emailResult.consultantOk) {
       // At least one email sent — treat as success
