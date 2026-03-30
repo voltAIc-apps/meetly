@@ -111,6 +111,18 @@ function svgVideo() {
   return s
 }
 
+function svgLinkedin() {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  s.setAttribute('width', '18'); s.setAttribute('height', '18')
+  s.setAttribute('viewBox', '0 0 24 24')
+  s.setAttribute('fill', 'currentColor')
+  // Official LinkedIn "in" logo path
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  p.setAttribute('d', 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z')
+  s.appendChild(p)
+  return s
+}
+
 // --- Initials from name ---
 function getInitials(name) {
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -215,18 +227,33 @@ export function renderStep1(state, callbacks) {
           class: 'sb-consultant-avatar',
         }, [getInitials(c.name)])
 
-    const card = el('div', {
-      id: `sb-step1-card-${i}`,
-      class: `sb-consultant-card${state.selectedConsultant === c.id ? ' sb-selected' : ''}`,
-      onclick: () => callbacks.onSelectConsultant(c.id),
-    }, [
+    const cardChildren = [
       avatar,
       el('div', { id: `sb-step1-info-${i}`, class: 'sb-consultant-info' }, [
         el('div', { id: `sb-step1-name-${i}`, class: 'sb-consultant-name' }, [c.name]),
         el('div', { id: `sb-step1-role-${i}`, class: 'sb-consultant-role' }, [c.role || '']),
         ...(c.bio ? [el('div', { id: `sb-step1-bio-${i}`, class: 'sb-consultant-bio' }, [c.bio])] : []),
       ]),
-    ])
+    ]
+
+    // LinkedIn icon on the right side
+    if (c.linkedin) {
+      cardChildren.push(el('a', {
+        id: `sb-step1-linkedin-${i}`,
+        class: 'sb-consultant-linkedin',
+        href: c.linkedin,
+        target: '_blank',
+        rel: 'noopener',
+        title: 'LinkedIn',
+        onclick: (e) => e.stopPropagation(),
+      }, [svgLinkedin()]))
+    }
+
+    const card = el('div', {
+      id: `sb-step1-card-${i}`,
+      class: `sb-consultant-card${state.selectedConsultant === c.id ? ' sb-selected' : ''}`,
+      onclick: () => callbacks.onSelectConsultant(c.id),
+    }, cardChildren)
     container.appendChild(card)
   })
 
