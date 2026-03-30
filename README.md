@@ -1,20 +1,24 @@
-# booking-widget
+# meetly
 
 Embeddable meeting booking widget. Vanilla JS, multi-brand, zero dependencies. Single `dist/widget.js` bundle (~48kb) with CSS inlined.
 
 ## Architecture
 
-Two independent services:
+Four services, two optional:
 
-| Service | Responsibility |
-|---|---|
-| **booking-widget** (this repo) | Frontend popup, consultant data, availability computation, email + iCal via EmailJS, auto-theme |
-| **app2gcal** (separate repo) | Google Calendar event creation, booked-slot verification |
+| Service | Required | Responsibility |
+|---|---|---|
+| **meetly** (this repo) | yes | Frontend popup, consultant data, availability computation, email + iCal via EmailJS, auto-theme |
+| **Brand website** | yes | Hosts consultant JSON files per brand |
+| **EmailJS** | yes | Email delivery (visitor confirmation + consultant notification with iCal) |
+| **app2gcal** (separate repo) | no | Google Calendar event creation, booked-slot verification |
 
 ![Booking Flow](docs/booking_flow.svg)
 
+*Optional services shown in green (dashed). Fallback path in red.*
+
 - Widget fetches consultant profiles from JSON files hosted on each brand's website
-- Availability computed client-side from consultant schedules, then verified against app2gcal for already-booked slots
+- Availability computed client-side from consultant schedules, optionally verified against app2gcal for already-booked slots
 - Emails (visitor confirmation + consultant notification) with iCal attachments sent via EmailJS
 - If app2gcal is unreachable, widget falls back to email-only booking with a private video conference link
 - app2gcal handles only Google Calendar integration (no email)
